@@ -458,6 +458,7 @@ chacha20_poly1305_open:
 .cfi_push $keyp
     sub \$288 + $xmm_storage + 32, %rsp
 .cfi_adjust_cfa_offset 288 + 32
+
     lea 32(%rsp), %rbp
     and \$-32, %rbp\n";
 $code.="
@@ -1643,7 +1644,17 @@ $code.="
 .align 64
 chacha20_poly1305_open_avx2:
 .cfi_startproc
-    .cfi_def_cfa rsp, 288 + 32 + (7*8) + 8
+
+# Since the AVX2 function operates in the frame of the SSE function, we just copy the frame state to over here
+.cfi_push %rbp
+.cfi_push %rbx
+.cfi_push %r12
+.cfi_push %r13
+.cfi_push %r14
+.cfi_push %r15
+.cfi_push $keyp
+.cfi_adjust_cfa_offset 288 + 32
+
     vzeroupper
     vmovdqa .Lchacha20_consts(%rip), $A0
     vbroadcasti128 0*16($keyp), $B0
@@ -2106,7 +2117,17 @@ chacha20_poly1305_open_avx2:
 .align 64
 chacha20_poly1305_seal_avx2:
 .cfi_startproc
-    .cfi_def_cfa rsp, 288 + 32 + (7*8) + 8
+
+# Since the AVX2 function operates in the frame of the SSE function, we just copy the frame state to over here
+.cfi_push %rbp
+.cfi_push %rbx
+.cfi_push %r12
+.cfi_push %r13
+.cfi_push %r14
+.cfi_push %r15
+.cfi_push $keyp
+.cfi_adjust_cfa_offset 288 + 32
+
     vzeroupper
     vmovdqa .Lchacha20_consts(%rip), $A0
     vbroadcasti128 0*16($keyp), $B0
